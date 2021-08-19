@@ -1,14 +1,10 @@
 const express = require("express");
 
 const app = express();
-const GitHubStrategy = require('passport-github').Strategy;
-const passport = require("passport");
 const session = require("express-session");
 require("dotenv").config();
-
-app.use(passport.initialize());
-app.use(passport.session());
-
+const GitHubStrategy = require('passport-github').Strategy;
+const passport = require("passport");
 
 //to persist the session
 app.use(session({
@@ -19,9 +15,12 @@ app.use(session({
         httpOnly: true,
         secure: false,
         maxAge: 24 * 60 * 60 * 1000
-    }
+    },
 }));
 
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 //to persist the data of user in the session
 passport.serializeUser(function(user,cb){
@@ -34,6 +33,19 @@ passport.deserializeUser(function(id,cb){
 });
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 //gitHub strategy
 
 
@@ -44,7 +56,7 @@ passport.use(new GitHubStrategy({
 },
 
     function (accessToken, refreshToken, profile, cb) {
-        console.log(profile)
+        console.warn(profile)
         cb(null, profile);
     }
 ));
@@ -61,7 +73,7 @@ const checkAuth = (req, res, next) => {
 
 
 app.get("/",checkAuth, (req, res) => {
-    //console.log(req.user)
+    console.log(req.user)
     res.sendFile(__dirname + "/dash.html")
 })
 
@@ -78,11 +90,6 @@ app.get("/login", (req, res) => {
     }
 })
 
-app.get("/logout", (req, res) => {
-    req.logOut();
-    res.redirect("/login");
-})
-
 
 //authentication 
 app.get('/auth/github',
@@ -94,6 +101,14 @@ app.get('/auth/github/callback',
         // Successful authentication, redirect home.
         res.redirect('/');
     });
+
+
+app.get("/logout", (req, res) => {
+    req.logOut();
+    res.redirect("/login");
+})
+
+
 
 
 //server running
